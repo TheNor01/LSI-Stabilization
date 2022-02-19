@@ -1,6 +1,7 @@
 from typing import Any
 import numpy as np
 from cv2 import cv2
+from matplotlib import pyplot as plt
 
 
 def infoVideo(cap:Any):
@@ -18,12 +19,29 @@ def infoVideo(cap:Any):
 
 def ComputeMatrix(good_old, good_new):
     m = cv2.estimateAffine2D(good_old, good_new)[0]
+    #cv.findHomography(src_pts, dst_pts, cv.RANSAC,5.0)
     #print("matrix",m)
-    dx = m[0,2]
-    dy = m[1,2]
-    da = np.arctan2(m[1,0], m[0,0])
+    dx = m[0,2] #deltaX
+    dy = m[1,2] #deltay 
+    da = np.arctan2(m[1,0], m[0,0]) #deltaAngle
+
+    #print("delta a",da)
 
     return [dx,dy,da]
+
+def movingAverage(curve, radius):
+  window_size = 2 * radius + 1
+  # Define the filter
+  f = np.ones(window_size)/window_size
+  # Add padding to the boundaries
+  curve_pad = np.lib.pad(curve, (radius, radius), 'edge')
+  # Apply convolution
+  curve_smoothed = np.convolve(curve_pad, f, mode='same')
+  # Remove padding
+  curve_smoothed = curve_smoothed[radius:-radius]
+  # return smoothed curve
+  return curve_smoothed
+
 
 
 
@@ -39,11 +57,13 @@ def processFrames(cap:Any, frames:int,feature_params :dict,lk_parames:dict):
     transforms = np.zeros((frames-1, 3), np.float32)
     
     for i in range(0,frames-2):
+        print("frame i",i)
         prevPtsFeat = cv2.goodFeaturesToTrack(prev_gray,**feature_params)
         #print("goodFT",prevPtsFeat)
         success, frame = cap.read() #true,prev
         
         if (not success):
+            print("not success")
             break
         
         #print("i#frame",i,"\n")
@@ -57,15 +77,14 @@ def processFrames(cap:Any, frames:int,feature_params :dict,lk_parames:dict):
             good_new = curr_pts[status==1]
             good_old = prevPtsFeat[status==1]
 
-
         # Sanity check
         assert prevPtsFeat.shape == curr_pts.shape
 
-        for i, (new, old) in enumerate(zip(good_new, good_old)):
+        for j, (new, old) in enumerate(zip(good_new, good_old)):
             a, b = new.ravel()
             c, d = old.ravel()
-            mask = cv2.line(mask, (int(a), int(b)), (int(c), int(d)), color[i].tolist(), 2)
-            frame = cv2.circle(frame, (int(a), int(b)), 3, color[i].tolist(), -1)
+            mask = cv2.line(mask, (int(a), int(b)), (int(c), int(d)), color[j].tolist(), 2)
+            frame = cv2.circle(frame, (int(a), int(b)), 3, color[j].tolist(), -1)
 
         img = cv2.add(frame, mask)
         cv2.imshow('frame', img)
@@ -73,7 +92,8 @@ def processFrames(cap:Any, frames:int,feature_params :dict,lk_parames:dict):
 
         #Find transformation matrix
         transforms[i]=ComputeMatrix(good_old,good_new)
-        print(transforms[i])
+        #print("delta frame i ",i)  
+        #print(transforms[i])
     
 
         #space for next iter, esc to quit
@@ -84,10 +104,18 @@ def processFrames(cap:Any, frames:int,feature_params :dict,lk_parames:dict):
         prev_gray = curr_gray.copy()
         prevPtsFeat = good_new.reshape(-1, 1, 2)
     cv2.destroyAllWindows()
- 
 
+    trajectory = np.cumsum(transforms, axis=0)
 
+    print(type(trajectory))
+    print(trajectory)
+    plt.xlabel('frames')
+    plt.ylabel('values')
+    plt.plot(trajectory)
+    plt.gca().legend(('deltaX','deltaY','deltaÆ'))
+    plt.show()
 
+  
 
 if __name__ == '__main__':
     cap = cv2.VideoCapture('./gallery/test1.mp4')
