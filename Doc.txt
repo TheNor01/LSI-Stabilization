@@ -1,0 +1,2 @@
+https://learnopencv.com/video-stabilization-using-point-feature-matching-in-opencv/
+https://pypi.org/project/opencv-python/
