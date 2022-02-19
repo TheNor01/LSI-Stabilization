@@ -42,6 +42,12 @@ def movingAverage(curve, radius):
   # return smoothed curve
   return curve_smoothed
 
+def Smooth(trajectory):
+  smoothed_trajectory = np.copy(trajectory)
+  # Filter the x, y and angle curves
+  for i in range(3):
+    smoothed_trajectory[:,i] = movingAverage(trajectory[:,i], radius=50)
+  return smoothed_trajectory
 
 
 
@@ -106,6 +112,8 @@ def processFrames(cap:Any, frames:int,feature_params :dict,lk_parames:dict):
     cv2.destroyAllWindows()
 
     trajectory = np.cumsum(transforms, axis=0)
+    return trajectory
+
 
     print(type(trajectory))
     print(trajectory)
@@ -125,4 +133,25 @@ if __name__ == '__main__':
     feature_params = dict(maxCorners=100,qualityLevel=0.10,minDistance=40,blockSize=3)
     # Parameters for lucas kanade optical flow
     lk_params = dict(winSize  = (15, 15),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
-    processFrames(cap,frames,feature_params,lk_params)
+
+    trajectory = processFrames(cap,frames,feature_params,lk_params)
+
+    smoothedTra = Smooth(trajectory)
+
+    #print(type(trajectory))
+    #print(trajectory)
+    plt.subplot(1, 2, 1)
+    plt.xlabel('frames')
+    plt.ylabel('values')
+    
+    plt.plot(trajectory)
+    plt.gca().legend(('deltaX','deltaY','deltaÆ'))
+
+    plt.subplot(1, 2, 2)
+    plt.plot(smoothedTra)
+    plt.gca().legend(('deltaX','deltaY','deltaÆ'))
+
+
+    plt.show()
+
+
