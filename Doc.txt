@@ -1,3 +1,5 @@
 https://learnopencv.com/video-stabilization-using-point-feature-matching-in-opencv/
 https://pypi.org/project/opencv-python/
 https://docs.opencv.org/3.4/d4/dee/tutorial_optical_flow.html
+https://docs.opencv.org/3.4/dd/d1a/group__imgproc__feature.html#ga1d6bb77486c8f92d79c8793ad995d541
+https://www.programcreek.com/python/?project_name=AdamSpannbauer%2Fpython_video_stab
