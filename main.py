@@ -3,6 +3,7 @@ import numpy as np
 from cv2 import cv2
 from matplotlib import pyplot as plt
 import os
+import time
 
 def infoVideo(cap:Any):
     n_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -115,8 +116,47 @@ def fixBorder(frame):
   frame = cv2.warpAffine(frame, T, (s[1], s[0]))
   return frame
          
+
+def WritingStable(outStream,cap:Any, frames:int,transforms_smooth,width,height):
+    print("STABLING video")
+
+    for i in range(frames-2):
+        success, frame = cap.read()
+
+        print("Stable i",i )
+        if not success:
+            out.release()
+            print("not success")  
+            break
+        # Extract transformations from the new transformation array
+        dx = transforms_smooth[i,0]
+        dy = transforms_smooth[i,1]
+        da = transforms_smooth[i,2]
+
+        # Reconstruct transformation matrix accordingly to new values
+        m = np.zeros((2,3), np.float32)
+        m[0,0] = np.cos(da)
+        m[0,1] = -np.sin(da)
+        m[1,0] = np.sin(da)
+        m[1,1] = np.cos(da)
+        m[0,2] = dx
+        m[1,2] = dy
+
+        frame_stabilized = cv2.warpAffine(frame, m, (width,height))
+
+        frame_stabilized = fixBorder(frame_stabilized)
+        frame_compare = cv2.hconcat([frame, frame_stabilized])
+
+        cv2.imshow("After", frame_compare)
+
+        k = cv2.waitKey(0) & 0xff
+        if k == 27:
+            break
+    
+        out.write(frame_stabilized)
+       
 if __name__ == '__main__':
-    cap = cv2.VideoCapture('./ML_imagestab/gallery/test1.mp4')
+    cap = cv2.VideoCapture('./gallery/test1.mp4')
     print(os.getcwd())
     print(cv2.__version__)
     print("Getting info video \n")
@@ -124,7 +164,7 @@ if __name__ == '__main__':
 
     #output codec
 
-    outPath = "./ML_imagestab/output/video_out.mp4"
+    outPath = "./output/video_out.mp4"
     if os.path.exists(outPath):
         os.remove(outPath)
          
@@ -161,35 +201,11 @@ if __name__ == '__main__':
     transforms_smooth = transforms + difference
 
     cap.set(cv2.CAP_PROP_POS_FRAMES,0)
-    for i in range(frames-2):
-        success, frame = cap.read()
-        if not success:
-            out.release()  
-            break
-        # Extract transformations from the new transformation array
-        dx = transforms_smooth[i,0]
-        dy = transforms_smooth[i,1]
-        da = transforms_smooth[i,2]
-
-        # Reconstruct transformation matrix accordingly to new values
-        m = np.zeros((2,3), np.float32)
-        m[0,0] = np.cos(da)
-        m[0,1] = -np.sin(da)
-        m[1,0] = np.sin(da)
-        m[1,1] = np.cos(da)
-        m[0,2] = dx
-        m[1,2] = dy
- 
-        frame_stabilized = cv2.warpAffine(frame, m, (width,height))
-
-        frame_stabilized = fixBorder(frame_stabilized)
-        #frame_compare = cv2.hconcat([frame, frame_stabilized])
-        out.write(frame_stabilized)
-        cv2.imshow("After", frame_stabilized)
-        if cv2.waitKey(1) == ord('q'):
-            break
-        
- 
-    cv2.destroyAllWindows()
+    WritingStable(out,cap,frames,transforms_smooth,width,height)
+    
     out.release()
     cap.release()
+    
+    
+    cv2.destroyAllWindows()
+    
