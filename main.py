@@ -10,9 +10,10 @@ def infoVideo(cap:Any):
 
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
 
-    print(" number of frames is",n_frames,"\n","height :",height,"\n","width :",width)
-    return n_frames,width,height
+    print(" number of frames is",n_frames,"\n","height :",height,"\n","width :",width,"FPS",fps )
+    return n_frames,width,height,fps
 
 def ComputeMatrix(good_old, good_new):
     m = cv2.estimateAffine2D(good_old, good_new)[0]
@@ -117,7 +118,7 @@ def fixBorder(frame):
   return frame
          
 
-def WritingStable(outStream,cap:Any, frames:int,transforms_smooth,width,height):
+def WritingStable(outStream,cap:Any, frames:int,transforms_smooth,width,height,fps):
     print("STABLING video")
 
     for i in range(frames-2):
@@ -149,18 +150,18 @@ def WritingStable(outStream,cap:Any, frames:int,transforms_smooth,width,height):
 
         cv2.imshow("After", frame_compare)
 
-        k = cv2.waitKey(0) & 0xff
+        k = cv2.waitKey(int(fps)) & 0xff
         if k == 27:
             break
-    
+     
         out.write(frame_stabilized)
        
 if __name__ == '__main__':
-    cap = cv2.VideoCapture('./gallery/test1.mp4')
+    cap = cv2.VideoCapture('./gallery/test2.mp4')
     print(os.getcwd())
     print(cv2.__version__)
     print("Getting info video \n")
-    frames,width,height = infoVideo(cap)
+    frames,width,height,fps = infoVideo(cap)
 
     #output codec
 
@@ -169,7 +170,7 @@ if __name__ == '__main__':
         os.remove(outPath)
          
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter(outPath, fourcc, frames, ( width, height))
+    out = cv2.VideoWriter(outPath, fourcc, fps, ( width, height))
 
  
     feature_params = dict(maxCorners=100,qualityLevel=0.10,minDistance=10,blockSize=3) 
@@ -201,7 +202,7 @@ if __name__ == '__main__':
     transforms_smooth = transforms + difference
 
     cap.set(cv2.CAP_PROP_POS_FRAMES,0)
-    WritingStable(out,cap,frames,transforms_smooth,width,height)
+    WritingStable(out,cap,frames,transforms_smooth,width,height,fps)
     
     out.release()
     cap.release()
