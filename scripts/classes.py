@@ -19,7 +19,6 @@ class CustomStabilization:
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
 
         print(" number of frames is",self.n_frames,"\n","height :",self.height,"\n","width :",self.width,"FPS",self.fps)
-        return self.n_frames,self.width,self.height,self.fps
     
     def fixBorder(self,frame):
         s = frame.shape
