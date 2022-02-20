@@ -2,7 +2,7 @@ from typing import Any
 import numpy as np
 from cv2 import cv2
 from matplotlib import pyplot as plt
-
+import os
 
 def infoVideo(cap:Any):
     n_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -11,11 +11,7 @@ def infoVideo(cap:Any):
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
     print(" number of frames is",n_frames,"\n","height :",height,"\n","width :",width)
-    #output codec
-    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    #out = cv2.VideoWriter('./output/video_out.mp4', fourcc, n_frames, (width, height))
-    
-    return n_frames
+    return n_frames,width,height
 
 def ComputeMatrix(good_old, good_new):
     m = cv2.estimateAffine2D(good_old, good_new)[0]
@@ -49,8 +45,6 @@ def Smooth(trajectory):
     smoothed_trajectory[:,i] = movingAverage(trajectory[:,i], radius=50)
   return smoothed_trajectory
 
-
-
 #Lucas-Kanade Optical Flow
 def processFrames(cap:Any, frames:int,feature_params :dict,lk_parames:dict):
     #process the first frame for starting the sequence
@@ -77,7 +71,7 @@ def processFrames(cap:Any, frames:int,feature_params :dict,lk_parames:dict):
         #print(curr_gray)
         #cv2.imshow("image gray",curr_gray)
         #cv2.waitKey(0)
-        curr_pts, status, err = cv2.calcOpticalFlowPyrLK(prev_gray, curr_gray, prevPtsFeat, None,**lk_parames)
+        curr_pts, status, _ = cv2.calcOpticalFlowPyrLK(prev_gray, curr_gray, prevPtsFeat, None,**lk_parames)
 
         if curr_pts is not None:
             good_new = curr_pts[status==1]
@@ -112,29 +106,37 @@ def processFrames(cap:Any, frames:int,feature_params :dict,lk_parames:dict):
     cv2.destroyAllWindows()
 
     trajectory = np.cumsum(transforms, axis=0)
-    return trajectory
+    return trajectory,transforms
 
-
-    print(type(trajectory))
-    print(trajectory)
-    plt.xlabel('frames')
-    plt.ylabel('values')
-    plt.plot(trajectory)
-    plt.gca().legend(('deltaX','deltaY','deltaÆ'))
-    plt.show()
-
-  
-
+def fixBorder(frame):
+  s = frame.shape
+  # Scale the image 4% without moving the center
+  T = cv2.getRotationMatrix2D((s[1]/2, s[0]/2), 0, 1.30)
+  frame = cv2.warpAffine(frame, T, (s[1], s[0]))
+  return frame
+         
 if __name__ == '__main__':
-    cap = cv2.VideoCapture('./gallery/test1.mp4')
+    cap = cv2.VideoCapture('./ML_imagestab/gallery/test1.mp4')
+    print(os.getcwd())
     print(cv2.__version__)
     print("Getting info video \n")
-    frames = infoVideo(cap)
-    feature_params = dict(maxCorners=100,qualityLevel=0.10,minDistance=40,blockSize=3)
+    frames,width,height = infoVideo(cap)
+
+    #output codec
+
+    outPath = "./ML_imagestab/output/video_out.mp4"
+    if os.path.exists(outPath):
+        os.remove(outPath)
+         
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    out = cv2.VideoWriter(outPath, fourcc, frames, ( width, height))
+
+ 
+    feature_params = dict(maxCorners=100,qualityLevel=0.10,minDistance=10,blockSize=3) 
     # Parameters for lucas kanade optical flow
     lk_params = dict(winSize  = (15, 15),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 
-    trajectory = processFrames(cap,frames,feature_params,lk_params)
+    trajectory,transforms = processFrames(cap,frames,feature_params,lk_params)
 
     smoothedTra = Smooth(trajectory)
 
@@ -150,8 +152,44 @@ if __name__ == '__main__':
     plt.subplot(1, 2, 2)
     plt.plot(smoothedTra)
     plt.gca().legend(('deltaX','deltaY','deltaÆ'))
-
-
     plt.show()
 
+    # Calculate difference in smoothed_trajectory and trajectory
+    difference = smoothedTra - trajectory
 
+    # Calculate newer transformation array
+    transforms_smooth = transforms + difference
+
+    cap.set(cv2.CAP_PROP_POS_FRAMES,0)
+    for i in range(frames-2):
+        success, frame = cap.read()
+        if not success:
+            out.release()  
+            break
+        # Extract transformations from the new transformation array
+        dx = transforms_smooth[i,0]
+        dy = transforms_smooth[i,1]
+        da = transforms_smooth[i,2]
+
+        # Reconstruct transformation matrix accordingly to new values
+        m = np.zeros((2,3), np.float32)
+        m[0,0] = np.cos(da)
+        m[0,1] = -np.sin(da)
+        m[1,0] = np.sin(da)
+        m[1,1] = np.cos(da)
+        m[0,2] = dx
+        m[1,2] = dy
+ 
+        frame_stabilized = cv2.warpAffine(frame, m, (width,height))
+
+        frame_stabilized = fixBorder(frame_stabilized)
+        #frame_compare = cv2.hconcat([frame, frame_stabilized])
+        out.write(frame_stabilized)
+        cv2.imshow("After", frame_stabilized)
+        if cv2.waitKey(1) == ord('q'):
+            break
+        
+ 
+    cv2.destroyAllWindows()
+    out.release()
+    cap.release()
