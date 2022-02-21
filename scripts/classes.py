@@ -68,7 +68,8 @@ class CustomStabilization:
                 c, d = old.ravel()
                 mask = cv2.line(mask, (int(a), int(b)), (int(c), int(d)), color[j].tolist(), 2)
                 frame = cv2.circle(frame, (int(a), int(b)), 3, color[j].tolist(), -1)
-
+            
+        
             img = cv2.add(frame, mask)
             cv2.imshow('frame', img)
 

@@ -40,7 +40,7 @@ def PlotCurves(trajectory,smoothedTra):
     plt.gca().legend(('deltaX','deltaY','deltaÆ'))
     plt.show()
 
-def Stabilization1(sourceVideo,outPath):
+def Stabilization1(sourceVideo,outPath="./output/video_out.mp4"):
     stableObject = CustomStabilization(sourceVideo)
 
     #cap = cv2.VideoCapture(sourceVideo)
@@ -67,7 +67,7 @@ def Stabilization1(sourceVideo,outPath):
     stableObject.WritingStable(transforms_smooth)
 
 
-def Stabilization2(sourceVideo,outPath):
+def Stabilization2(sourceVideo,outPath="./output/video_out.mp4"):
     stabilizer = VidStab(kp_method="FAST")
     stabilizer.stabilize(input_path=sourceVideo, output_path=outPath,border_size=100)
     stabilizer.plot_trajectory()
@@ -76,19 +76,28 @@ def Stabilization2(sourceVideo,outPath):
     plt.show()
 
 
-if __name__ == '__main__':
-
-    sourceVideo = "./gallery/test2.mp4"
-    #output codec
-    outPath = "./output/video_out.mp4"
-    if os.path.exists(outPath):
+def Main(sourcePath,name,outPath="./output/video_out.mp4"):
+  print("main")
+  if os.path.exists(outPath):
         os.remove(outPath)
 
+  if name == "Custom":
+    Stabilization1(sourcePath)
+  elif name == "VidStab":
+    Stabilization2(sourcePath)
+  else:
+    print("none")
+  cv2.destroyAllWindows()
 
+if __name__ == '__main__':
+
+    sourcePath = "./gallery/test2.mp4"
+    #Main(sourcePath,name="Custom")
+  
     #Using custom logic
-    #Stabilization1(sourceVideo,outPath)
+    #Stabilization1(sourcePath)
 
     #Usign videostab 
-    Stabilization2(sourceVideo,outPath)
-    cv2.destroyAllWindows()
+    #Stabilization2(sourcePath)
+    
     

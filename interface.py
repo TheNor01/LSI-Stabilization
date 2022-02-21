@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import filedialog
-
+from main import Main
 
 root = Tk()
 root.minsize(200,200)
@@ -19,6 +19,12 @@ e.bind("<Button-1>", entryClick)
 e.grid(row=1,column=0,columnspan=3,pady=10)
 e.insert(0,"Ïnsert Video's Path")
 
+
+def StartAlgo(pathVar,name):
+    root.destroy()
+    Main(pathVar,name)
+    
+
 def StartUp():
     global pathVar
     pathVar = path.get()
@@ -26,8 +32,8 @@ def StartUp():
     top.minsize(200,200)
     top.title("Choose your algorithm")
     pathLabel = Label(top,text="PATH:   "+pathVar).grid(row=0,columnspan=2)
-    buttonCustomAlgo = Button(top,text="Custom").grid(row=1,columnspan=4)
-    buttonVidStabAlgo = Button(top,text="VidStab").grid(row=2,columnspan=4)
+    buttonCustomAlgo = Button(top,text="Custom",command=StartAlgo(pathVar,"Custom")).grid(row=1,columnspan=4)
+    buttonVidStabAlgo = Button(top,text="VidStab",command=StartAlgo(pathVar,"VidStab")).grid(row=2,columnspan=4)
     
 
 
