@@ -77,8 +77,10 @@ def Stabilization2(sourceVideo,outPath="./output/video_out.mp4"):
     plt.show()
 
 
-def Main(sourcePath,name,outPath="./output/video_out.mp4"):
+def Main(sourcePath,name,outPath="./output/video_out.mp4",option="FAST"):
   print("main")
+  print(option)
+  
   if os.path.exists(outPath):
         os.remove(outPath)
 
