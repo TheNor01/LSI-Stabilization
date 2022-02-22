@@ -46,11 +46,12 @@ def Stabilization1(sourceVideo,outPath="./output/video_out.mp4"):
     #cap = cv2.VideoCapture(sourceVideo)
     print("Getting info video \n")
     stableObject.InfoVideo()
+    print(outPath)
     stableObject.Setup(outPath)
     
-    feature_params = dict(maxCorners=100,qualityLevel=0.10,minDistance=10,blockSize=3) 
+    feature_params = dict(maxCorners=100,qualityLevel=0.3,minDistance=7,blockSize=7) 
     # Parameters for lucas kanade optical flow
-    lk_params = dict(winSize  = (15, 15),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+    lk_params = dict(winSize  = (10, 10),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 
     trajectory,transforms = stableObject.processFrames(feature_params,lk_params)
 
@@ -91,11 +92,15 @@ def Main(sourcePath,name,outPath="./output/video_out.mp4"):
 
 if __name__ == '__main__':
 
-    sourcePath = "./gallery/test2.mp4"
+    sourcePath = "./gallery/test1.mp4"
+    outPath = "./output/video_out.mp4"
+
+    if os.path.exists(outPath):
+        os.remove(outPath)
     #Main(sourcePath,name="Custom")
   
     #Using custom logic
-    #Stabilization1(sourcePath)
+    Stabilization1(sourcePath)
 
     #Usign videostab 
     #Stabilization2(sourcePath)

@@ -23,7 +23,7 @@ class CustomStabilization:
     def fixBorder(self,frame):
         s = frame.shape
         # Scale the image 25% without moving the center
-        T = cv2.getRotationMatrix2D((s[1]/2, s[0]/2), 0, 1.25)
+        T = cv2.getRotationMatrix2D((s[1]/2, s[0]/2), 0, 1.05)
         frame = cv2.warpAffine(frame, T, (s[1], s[0]))
         return frame
 
@@ -34,7 +34,7 @@ class CustomStabilization:
         #mask previous frame to draw lines
         mask = np.zeros_like(prev_frame)
         # Create some random colors
-        color = np.random.randint(0, 255, (150, 3))
+        #color = np.random.randint(0, 255, (150, 3))
         transforms = np.zeros((self.n_frames-1, 3), np.float32)
         
         for i in range(0,self.n_frames-2):
@@ -66,8 +66,8 @@ class CustomStabilization:
             for j, (new, old) in enumerate(zip(good_new, good_old)):
                 a, b = new.ravel()
                 c, d = old.ravel()
-                mask = cv2.line(mask, (int(a), int(b)), (int(c), int(d)), color[j].tolist(), 2)
-                frame = cv2.circle(frame, (int(a), int(b)), 3, color[j].tolist(), -1)
+                mask = cv2.line(mask, (int(a), int(b)), (int(c), int(d)), (0,0,255), 2)
+                frame = cv2.circle(frame, (int(a), int(b)), 3, (0,255,0), -1)
             
         
             img = cv2.add(frame, mask)
