@@ -5,7 +5,7 @@ import os
 import time
 
 from scripts.classes import CustomStabilization
-from vidstab import VidStab
+from vidstab import VidStab, layer_overlay, download_ostrich_video
 from scripts.classes import UpgradedCustom
 
 def movingAverage(curve, radius):
@@ -41,6 +41,7 @@ def PlotCurves(trajectory,smoothedTra):
     plt.gca().legend(('deltaX','deltaY','deltaÆ'))
     plt.show()
 
+
 def Stabilization1(sourceVideo,corners,blockSize,outPath="./output/video_out.mp4"):
     stableObject = CustomStabilization(sourceVideo)
 
@@ -48,9 +49,9 @@ def Stabilization1(sourceVideo,corners,blockSize,outPath="./output/video_out.mp4
     print("Getting info video \n")
     stableObject.InfoVideo()
     print(outPath)
+
     # Parameters for lucas kanade optical flow
     feature_params = dict(maxCorners=corners,qualityLevel=0.3,minDistance=7,blockSize=blockSize)
-
     lk_params = dict(winSize  = (10, 10),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
     stableObject.Setup(outPath,feature_params,lk_params)
     
@@ -71,14 +72,40 @@ def Stabilization1(sourceVideo,corners,blockSize,outPath="./output/video_out.mp4
     cv2.destroyAllWindows()
 
 
-def Stabilization2(sourceVideo,option,outPath="./output/video_out.mp4"):
+def Stabilization2(sourceVideo,option,boolObject,outPath="./output/video_out.mp4"):
     stabilizer = VidStab(kp_method=option)
-    stabilizer.stabilize(input_path=sourceVideo, output_path=outPath,border_size=100)
-    stabilizer.plot_trajectory()
-    plt.show()
-    stabilizer.plot_transforms()
-    plt.show()
+    if not boolObject:
+      stabilizer.stabilize(input_path=sourceVideo, output_path=outPath,border_size=100)
+      stabilizer.plot_trajectory()
+      plt.show()
+      stabilizer.plot_transforms()
+      plt.show()
+    else:
+      object_tracker = cv2.TrackerCSRT_create()
+      cap = cv2.VideoCapture(sourceVideo)
+      object_bounding_box = None
+      while True:
+        _,frame = cap.read()
+        stabilized_frame = stabilizer.stabilize_frame(input_frame=frame, border_size=50)
+        if stabilized_frame is None:
+          break
+        #Draw rectangle around tracked object if tracking has started
+        if object_bounding_box is not None:
+            success, object_bounding_box = object_tracker.update(stabilized_frame)
 
+            if success:
+              (x, y, w, h) = [int(v) for v in object_bounding_box]
+              cv2.rectangle(stabilized_frame, (x, y), (x + w, y + h),(0, 255, 0), 2)
+        cv2.imshow('Frame', stabilized_frame)
+        key = cv2.waitKey(0)
+        # Select ROI for tracking and begin object tracking
+        # Non-zero frame indicates stabilization process is warmed up
+        if stabilized_frame.sum() > 0 and object_bounding_box is None:
+            object_bounding_box = cv2.selectROI("Frame",stabilized_frame,fromCenter=False,showCrosshair=True)
+            object_tracker.init(stabilized_frame, object_bounding_box)
+        elif key == 27:
+            break
+        cap.release()
     cv2.destroyAllWindows()
 
 
@@ -116,8 +143,8 @@ if __name__ == '__main__':
 
 
     #Using UpgradedCustom
-    upCus = UpgradedCustom(sourcePath)
-    upCus.Process(outPath)
+    #upCus = UpgradedCustom(sourcePath)
+    #upCus.Process(outPath)
 
     
     

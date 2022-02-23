@@ -11,6 +11,8 @@ root.config(background="#756d7d")
 root.canvas=Canvas(width=400,height=350)
 root.canvas.place(x=150,y=60)
 
+
+
 def entryClick(event):
     event.widget.delete(0,END)
     root.filename = filedialog.askopenfilename(initialdir="./gallery/",filetypes=(("mp4 files","*.mp4"),("all files","*.*")))
@@ -28,11 +30,12 @@ def StartAlgoCustom(pathVar,name,corners,blockSize):
     root.destroy()
     Stabilization1(pathVar,corners,blockSize)
 
-def StartAlgoStab(pathVar,name,option):
+def StartAlgoStab(pathVar,name,option,boolObject):
     root.destroy()
-    Stabilization2(pathVar,name,option)
+    Stabilization2(pathVar,option,boolObject)
 
 def ChooseParamsCustom(pathVar,name):
+    
     corners = IntVar()
     corners.set(100)
     labelCornes = Label(top,text="Corners",font=6).place(x=140,y=120)
@@ -44,18 +47,22 @@ def ChooseParamsCustom(pathVar,name):
     labelSize = Label(top,text="BlockSize",font=6).place(x=260,y=120)
     slider2 = Scale(top,from_=1,to=15,orient='horizontal',variable=blockSize)
     slider2.place(x=250,y=80)
-
     confirm = Button(top,text="Confirm your option",command=lambda: StartAlgoCustom(pathVar,name,slider.get(),slider2.get()),state="normal",font=18)
     confirm.place(x=240,y=320)
 
 def ChooseAlgoStab(pathVar,name):
+    
     clicked = StringVar()
     clicked.set("FAST")
     featureOption = Label(top,text="Feature Tracking Option",font=24).grid(row=5,columnspan=4)
 
     drop = OptionMenu(top,clicked,"FAST","BRISK","ORB","GFTT","HARRIS","DENSE")
     drop.place(x=106,y=204)
-    confirm = Button(top,text="Confirm your option",command=lambda: StartAlgoStab(pathVar,name,clicked.get( )),state="normal",font=18)
+    chkValue = BooleanVar() 
+    chkValue.set(False)
+    checkBoxObject= Checkbutton(top, text='Use Object Detector', var=chkValue)
+    checkBoxObject.place(x=106,y=250)
+    confirm = Button(top,text="Confirm your option",command=lambda: StartAlgoStab(pathVar,name,clicked.get( ),chkValue.get()),state="normal",font=18)
     confirm.place(x=240,y=320)
         
     
@@ -68,6 +75,8 @@ def StartUp():
         messagebox.showerror("Error", "Scegliere path")
         return
     global top
+    global confirm
+    confirm = Button()
     top = Toplevel()
     top.minsize(400,400)
     top.title("Choose your algorithm")
