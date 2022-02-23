@@ -54,7 +54,7 @@ def ChooseAlgoStab(pathVar,name):
     
     clicked = StringVar()
     clicked.set("FAST")
-    featureOption = Label(top,text="Feature Tracking Option",font=24).grid(row=5,columnspan=4)
+    featureOption = Label(top,text="Feature Tracking Option",font=24).place(x=106,y=184)
 
     drop = OptionMenu(top,clicked,"FAST","BRISK","ORB","GFTT","HARRIS","DENSE")
     drop.place(x=106,y=204)
