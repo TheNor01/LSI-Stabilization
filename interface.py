@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import filedialog
-from main import Main
+from main import Stabilization1,Stabilization2
 from tkinter import messagebox
 
 root = Tk()
@@ -24,13 +24,29 @@ e.place(x=150,y=150)
 e.insert(0,"Insert Video's Path")
 
 
-def StartAlgoCustom(pathVar,name):
+def StartAlgoCustom(pathVar,name,corners,blockSize):
     root.destroy()
-    Main(pathVar,name)
+    Stabilization1(pathVar,corners,blockSize)
 
 def StartAlgoStab(pathVar,name,option):
     root.destroy()
-    Main(pathVar,name,option)
+    Stabilization2(pathVar,name,option)
+
+def ChooseParamsCustom(pathVar,name):
+    corners = IntVar()
+    corners.set(100)
+    labelCornes = Label(top,text="Corners",font=6).place(x=140,y=120)
+    slider = Scale(top,from_=0,to=200,orient='horizontal',variable=corners)
+    slider.place(x=120,y=80)
+
+    blockSize = IntVar()
+    blockSize.set(2)
+    labelSize = Label(top,text="BlockSize",font=6).place(x=260,y=120)
+    slider2 = Scale(top,from_=1,to=15,orient='horizontal',variable=blockSize)
+    slider2.place(x=250,y=80)
+
+    confirm = Button(top,text="Confirm your option",command=lambda: StartAlgoCustom(pathVar,name,slider.get(),slider2.get()),state="normal",font=18)
+    confirm.place(x=240,y=320)
 
 def ChooseAlgoStab(pathVar,name):
     clicked = StringVar()
@@ -38,9 +54,9 @@ def ChooseAlgoStab(pathVar,name):
     featureOption = Label(top,text="Feature Tracking Option",font=24).grid(row=5,columnspan=4)
 
     drop = OptionMenu(top,clicked,"FAST","BRISK","ORB","GFTT","HARRIS","DENSE")
-    drop.grid(row=6,columnspan=4)
-    confirm = Button(top,text="Confirm your option",command=lambda: StartAlgoStab(pathVar,name,clicked.get()),state="normal",font=18)
-    confirm.grid(row=8,columnspan=4)
+    drop.place(x=106,y=204)
+    confirm = Button(top,text="Confirm your option",command=lambda: StartAlgoStab(pathVar,name,clicked.get( )),state="normal",font=18)
+    confirm.place(x=240,y=320)
         
     
 
@@ -53,11 +69,11 @@ def StartUp():
         return
     global top
     top = Toplevel()
-    top.minsize(200,200)
+    top.minsize(400,400)
     top.title("Choose your algorithm")
-    pathLabel = Label(top,text="PATH:   "+pathVar).grid(row=0,columnspan=2)
-    buttonCustomAlgo = Button(top,text="Custom",command=lambda: StartAlgoCustom(pathVar,"Custom"),font=8).grid(row=3,columnspan=4)
-    buttonVidStabAlgo = Button(top,text="VidStab",command=lambda: ChooseAlgoStab(pathVar,"VidStab"),font=8).grid(row=4,columnspan=4)
+    pathLabel = Label(top,text="PATH:   "+pathVar).place(x=0,y=0)
+    buttonCustomAlgo = Button(top,text="Custom",command=lambda: ChooseParamsCustom(pathVar,"Custom"),font=6,height = 8, width = 10).place(x=0,y=40)
+    buttonVidStabAlgo = Button(top,text="VidStab",command=lambda: ChooseAlgoStab(pathVar,"VidStab"),font=6,height = 8, width = 10).place(x=0,y=180)
     
 
 

@@ -6,6 +6,7 @@ import time
 
 from scripts.classes import CustomStabilization
 from vidstab import VidStab
+from scripts.classes import UpgradedCustom
 
 def movingAverage(curve, radius):
   window_size = 2 * radius + 1
@@ -40,20 +41,20 @@ def PlotCurves(trajectory,smoothedTra):
     plt.gca().legend(('deltaX','deltaY','deltaÆ'))
     plt.show()
 
-def Stabilization1(sourceVideo,outPath="./output/video_out.mp4"):
+def Stabilization1(sourceVideo,corners,blockSize,outPath="./output/video_out.mp4"):
     stableObject = CustomStabilization(sourceVideo)
 
     #cap = cv2.VideoCapture(sourceVideo)
     print("Getting info video \n")
     stableObject.InfoVideo()
     print(outPath)
-    stableObject.Setup(outPath)
-    
-    feature_params = dict(maxCorners=100,qualityLevel=0.3,minDistance=7,blockSize=7) 
     # Parameters for lucas kanade optical flow
-    lk_params = dict(winSize  = (10, 10),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+    feature_params = dict(maxCorners=corners,qualityLevel=0.3,minDistance=7,blockSize=blockSize)
 
-    trajectory,transforms = stableObject.processFrames(feature_params,lk_params)
+    lk_params = dict(winSize  = (10, 10),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+    stableObject.Setup(outPath,feature_params,lk_params)
+    
+    trajectory,transforms = stableObject.processFrames()
 
     smoothedTra = Smooth(trajectory)
 
@@ -67,34 +68,40 @@ def Stabilization1(sourceVideo,outPath="./output/video_out.mp4"):
 
     stableObject.WritingStable(transforms_smooth)
 
+    cv2.destroyAllWindows()
 
-def Stabilization2(sourceVideo,outPath="./output/video_out.mp4"):
-    stabilizer = VidStab(kp_method="FAST")
+
+def Stabilization2(sourceVideo,option,outPath="./output/video_out.mp4"):
+    stabilizer = VidStab(kp_method=option)
     stabilizer.stabilize(input_path=sourceVideo, output_path=outPath,border_size=100)
     stabilizer.plot_trajectory()
     plt.show()
     stabilizer.plot_transforms()
     plt.show()
 
+    cv2.destroyAllWindows()
 
-def Main(sourcePath,name,outPath="./output/video_out.mp4",option="FAST"):
+
+def Main(sourcePath,name,option="Fast",outPath="./output/video_out.mp4"):
   print("main")
   print(option)
   
+  """
   if os.path.exists(outPath):
         os.remove(outPath)
 
   if name == "Custom":
     Stabilization1(sourcePath)
   elif name == "VidStab":
-    Stabilization2(sourcePath)
+    Stabilization2(sourcePath,option)
   else:
     print("none")
+  """
   cv2.destroyAllWindows()
 
 if __name__ == '__main__':
 
-    sourcePath = "./gallery/test1.mp4"
+    sourcePath = "./gallery/test2.mp4"
     outPath = "./output/video_out.mp4"
 
     if os.path.exists(outPath):
@@ -102,9 +109,15 @@ if __name__ == '__main__':
     #Main(sourcePath,name="Custom")
   
     #Using custom logic
-    Stabilization1(sourcePath)
+    #Stabilization1(sourcePath)
 
     #Usign videostab 
     #Stabilization2(sourcePath)
+
+
+    #Using UpgradedCustom
+    upCus = UpgradedCustom(sourcePath)
+    upCus.Process(outPath)
+
     
     

@@ -12,11 +12,3 @@ https://gist.github.com/JustinShenk/f4ba14a271202700f3251e73f6150696
 OpenCV provides a built-in function  cv2.goodFeaturesToTrack() that finds N strongest corners in the image by either Shi-Tomasi or Harris Corner Detector. Below is the algorithm that this function uses
 vistab FAST
 
-{"MSER": cv2.MSER_create,
-                             "FAST": cv2.FastFeatureDetector_create,
-                             "BRISK": cv2.BRISK_create,
-                             "ORB": cv2.ORB_create,
-                             "GFTT": GFTT,
-                             "HARRIS": HARRIS,
-                             "DENSE": DENSE
-                             }
