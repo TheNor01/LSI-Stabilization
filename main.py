@@ -76,7 +76,7 @@ def Stabilization2(sourceVideo,option,boolObject,outPath="./output/video_out.mp4
     if not boolObject:
       videoStab.Process(sourceVideo,outPath)
     else:
-      videoStab.ObjectProcessing()
+      videoStab.ObjectProcessing(outPath)
       
   
 def Main(sourcePath,name,option="Fast",outPath="./output/video_out.mp4"):

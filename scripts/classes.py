@@ -167,10 +167,9 @@ class VideoStabilization:
             (x, y, w, h) = [int(v) for v in object_bounding_box]
             cv2.rectangle(stabilized_frame, (x, y), (x + w, y + h),(0, 255, 0), 2)
     
-    def ObjectProcessing(self):
+    def ObjectProcessing(self,sourceVideo):
         print("obj tracker")
-        download_ostrich_video("ostrich.mp4")
-        cap = cv2.VideoCapture("ostrich.mp4")
+        cap = cv2.VideoCapture(sourceVideo)
         object_bounding_box = None
         while True:
             grabbed_frame,frame = cap.read()

@@ -78,6 +78,7 @@ def StartUp():
     global confirm
     confirm = Button()
     top = Toplevel()
+    top.config(background="#756d7d")
     top.minsize(400,400)
     top.title("Choose your algorithm")
     pathLabel = Label(top,text="PATH:   "+pathVar).place(x=0,y=0)
@@ -87,8 +88,10 @@ def StartUp():
 
 
 
-infoProject = Label(root,text="L.S.I Let's stabilize it",font=14)
-infoProject.place(x=280,y=60)
+infoProject = Label(root,text="L.S.I",font=14)
+infoProject.place(x=330,y=60)
+infoProject2 = Label(root,text="Let's stabilize it",font=14)
+infoProject2.place(x=290,y=90)
 
 infoAboutMe = Label(root,text="Aldo Fiorito Multimedia LM-18",font=14)
 infoAboutMe.place(x=240,y=390)
