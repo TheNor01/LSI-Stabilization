@@ -30,9 +30,10 @@ def StartAlgoCustom(pathVar,name,corners,blockSize):
     root.destroy()
     Stabilization1(pathVar,corners,blockSize)
 
-def StartAlgoStab(pathVar,name,option,boolObject):
+def StartAlgoStab(pathVar,name,option,boolObject,thresHold):
+    print("startAlgo")
     root.destroy()
-    Stabilization2(pathVar,option,boolObject)
+    Stabilization2(pathVar,option,boolObject,thresHold)
 
 def ChooseParamsCustom(pathVar,name):
     
@@ -51,19 +52,26 @@ def ChooseParamsCustom(pathVar,name):
     confirm.place(x=240,y=320)
 
 def ChooseAlgoStab(pathVar,name):
-    
+    global clicked
     clicked = StringVar()
-    clicked.set("FAST")
-    featureOption = Label(top,text="Feature Tracking Option",font=24).place(x=106,y=184)
+    clicked.set("BRISK")
+    featureOption = Label(top,text="Feature Tracking Option",font=14).place(x=106,y=184)
 
     drop = OptionMenu(top,clicked,"FAST","BRISK","ORB","GFTT","HARRIS","DENSE")
-    drop.place(x=106,y=204)
+    drop.place(x=300,y=184)
     chkValue = BooleanVar() 
     chkValue.set(False)
+
+    thresHold=IntVar()
+    thresHold.set(5)
+    treshLabel = Label(top,text="Treshold, only for FAST").place(x=106,y=220)
+    sliderTreshHold=Scale(top,from_=5,to=40,orient='horizontal',length=150,tickinterval=5,variable=thresHold)
+    sliderTreshHold.place(x=106,y=250)
+
     checkBoxObject= Checkbutton(top, text='Use Object Detector', var=chkValue)
-    checkBoxObject.place(x=106,y=250)
-    confirm = Button(top,text="Confirm your option",command=lambda: StartAlgoStab(pathVar,name,clicked.get( ),chkValue.get()),state="normal",font=18)
-    confirm.place(x=240,y=320)
+    checkBoxObject.place(x=240,y=320)
+    confirm = Button(top,text="Confirm your option",command=lambda: StartAlgoStab(pathVar,name,clicked.get(),chkValue.get(),sliderTreshHold.get()),state="normal",font=15)
+    confirm.place(x=240,y=360)
     
     
 

@@ -149,8 +149,11 @@ class CustomStabilization:
         self.out.release()
 
 class VideoStabilization:
-    def __init__(self, option):
-        self.stabilizer = VidStab(kp_method=option)
+    def __init__(self, option,treshHold):
+        if(option=="FAST"):
+            self.stabilizer = VidStab(kp_method=option,threshold=treshHold, nonmaxSuppression=False)
+        else:
+            self.stabilizer = VidStab(kp_method=option)
         self.object_tracker = cv2.TrackerCSRT_create()
 
 

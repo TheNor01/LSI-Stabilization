@@ -70,9 +70,9 @@ def Stabilization1(sourceVideo,corners,blockSize,outPath="./output/video_out.mp4
     cv2.destroyAllWindows()
 
 
-def Stabilization2(sourceVideo,option,boolObject,outPath="./output/video_out.mp4"):
+def Stabilization2(sourceVideo,option,boolObject,treshHold,outPath="./output/video_out.mp4"):
     
-    videoStab = VideoStabilization(option)
+    videoStab = VideoStabilization(option,treshHold)
     if not boolObject:
       videoStab.Process(sourceVideo,outPath)
     else:
