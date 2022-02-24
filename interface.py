@@ -64,7 +64,7 @@ def ChooseAlgoStab(pathVar,name):
     checkBoxObject.place(x=106,y=250)
     confirm = Button(top,text="Confirm your option",command=lambda: StartAlgoStab(pathVar,name,clicked.get( ),chkValue.get()),state="normal",font=18)
     confirm.place(x=240,y=320)
-        
+    
     
 
 def StartUp():
