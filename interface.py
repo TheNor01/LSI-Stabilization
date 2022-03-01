@@ -49,7 +49,7 @@ def ChooseParamsCustom(pathVar,name):
     slider2 = Scale(top,from_=1,to=15,orient='horizontal',variable=blockSize)
     slider2.place(x=250,y=80)
     confirm = Button(top,text="Confirm your option",command=lambda: StartAlgoCustom(pathVar,name,slider.get(),slider2.get()),state="normal",font=18)
-    confirm.place(x=240,y=320)
+    confirm.place(x=240,y=360)
 
 def ChooseAlgoStab(pathVar,name):
     global clicked
@@ -70,8 +70,9 @@ def ChooseAlgoStab(pathVar,name):
 
     checkBoxObject= Checkbutton(top, text='Use Object Detector', var=chkValue)
     checkBoxObject.place(x=240,y=320)
-    confirm = Button(top,text="Confirm your option",command=lambda: StartAlgoStab(pathVar,name,clicked.get(),chkValue.get(),sliderTreshHold.get()),state="normal",font=15)
-    confirm.place(x=240,y=360)
+
+    confirmStab = Button(top,text="Confirm your option",command=lambda: StartAlgoStab(pathVar,name,clicked.get(),chkValue.get(),sliderTreshHold.get()),state="normal",font=15)
+    confirmStab.place(x=240,y=360)
     
     
 
@@ -111,4 +112,4 @@ start.place(x=320,y=250)
 #infoProject.grid(row=0,column=0)
 
 
-root.mainloop()
+root.mainloop()   

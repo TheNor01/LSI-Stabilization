@@ -18,8 +18,8 @@ class CustomStabilization:
         self.out = cv2.VideoWriter(outPath, fourcc, self.fps , (self.width,self.height))  
 
     def InfoVideo(self):
+        
         self.n_frames = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
-
         self.width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
@@ -84,7 +84,7 @@ class CustomStabilization:
             #Find transformation matrix
             transforms[i]=self.ComputeMatrix(good_old,good_new)
             #print("delta frame i ",i)  
-            #print(transforms[i])
+            print(transforms[i])
         
             #space for next iter, esc to quit
             k = cv2.waitKey(0) & 0xff
@@ -99,12 +99,11 @@ class CustomStabilization:
     def ComputeMatrix(self,good_old, good_new):
         m = cv2.estimateAffine2D(good_old, good_new)[0]
         #cv.findHomography(src_pts, dst_pts, cv.RANSAC,5.0)
-        #print("matrix",m)
         dx = m[0,2] #deltaX
         dy = m[1,2] #deltay 
         da = np.arctan2(m[1,0], m[0,0]) #deltaAngle
-
-        #print("delta a",da)
+        
+        print(dx,dy,da)
 
         return [dx,dy,da]
 
@@ -124,6 +123,8 @@ class CustomStabilization:
             dx = transforms_smooth[i,0]
             dy = transforms_smooth[i,1]
             da = transforms_smooth[i,2]
+
+            print("da value = ", da)
 
             # Reconstruct transformation matrix accordingly to new values
             m = np.zeros((2,3), np.float32)
