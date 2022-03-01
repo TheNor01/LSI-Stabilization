@@ -11,7 +11,18 @@ root.config(background="#756d7d")
 root.canvas=Canvas(width=400,height=350)
 root.canvas.place(x=150,y=60)
 
+global clicked
+clicked = StringVar()
+clicked.set("None")
 
+global corners
+corners = IntVar()
+corners.set(1)
+
+global checkStab
+checkStab = 0
+global checkCustom
+checkCustom = 0
 
 def entryClick(event):
     event.widget.delete(0,END)
@@ -26,37 +37,73 @@ e.place(x=150,y=150)
 e.insert(0,"Insert Video's Path")
 
 
-def StartAlgoCustom(pathVar,name,corners,blockSize):
+def StartAlgoCustom(pathVar,corners,blockSize):
     root.destroy()
     Stabilization1(pathVar,corners,blockSize)
 
-def StartAlgoStab(pathVar,name,option,boolObject,thresHold):
+def StartAlgoStab(pathVar,option,boolObject,thresHold):
     print("startAlgo")
     root.destroy()
     Stabilization2(pathVar,option,boolObject,thresHold)
 
 def ChooseParamsCustom(pathVar,name):
-    
-    corners = IntVar()
-    corners.set(100)
-    labelCornes = Label(top,text="Corners",font=6).place(x=140,y=120)
+    print("custom")
+    global checkCustom
+    checkCustom=1
+    print("check custom",checkCustom)
+    print("check stab",checkStab)
+    print(clicked.get())
+
+
+    if checkStab==1:
+        featureOption.destroy()
+        drop.destroy()
+        treshLabel.destroy()
+        sliderTreshHold.destroy()
+        checkBoxObject.destroy()
+
+    global labelCornes
+    labelCornes = Label(top,text="Corners",font=6)
+    labelCornes.place(x=140,y=120)
+
+    global slider
     slider = Scale(top,from_=0,to=200,orient='horizontal',variable=corners)
     slider.place(x=120,y=80)
 
     blockSize = IntVar()
     blockSize.set(2)
-    labelSize = Label(top,text="BlockSize",font=6).place(x=260,y=120)
+
+    global labelSize
+    labelSize = Label(top,text="BlockSize",font=6)
+    labelSize.place(x=260,y=120)
+
+    global slider2
     slider2 = Scale(top,from_=1,to=15,orient='horizontal',variable=blockSize)
     slider2.place(x=250,y=80)
-    confirm = Button(top,text="Confirm your option",command=lambda: StartAlgoCustom(pathVar,name,slider.get(),slider2.get()),state="normal",font=18)
+
+
+    confirm = Button(top,text="Confirm your option",command=lambda: StartAlgoCustom(pathVar,slider.get(),slider2.get()),state="normal",font=18)
     confirm.place(x=240,y=360)
 
-def ChooseAlgoStab(pathVar,name):
-    global clicked
-    clicked = StringVar()
-    clicked.set("BRISK")
-    featureOption = Label(top,text="Feature Tracking Option",font=14).place(x=106,y=184)
 
+def ChooseAlgoStab(pathVar,name):
+    print("stab")
+    global checkStab
+    checkStab = 1
+    print("check custom",checkCustom)
+    print("check stab",checkStab)
+
+    if corners.get() != 1 or checkCustom==1:
+        labelCornes.destroy()
+        slider.destroy()
+        labelSize.destroy()
+        slider2.destroy()
+
+    global featureOption
+    featureOption = Label(top,text="Feature Tracking Option",font=14)
+    featureOption.place(x=106,y=184)
+
+    global drop
     drop = OptionMenu(top,clicked,"FAST","BRISK","ORB","GFTT","HARRIS","DENSE")
     drop.place(x=300,y=184)
     chkValue = BooleanVar() 
@@ -64,14 +111,19 @@ def ChooseAlgoStab(pathVar,name):
 
     thresHold=IntVar()
     thresHold.set(5)
-    treshLabel = Label(top,text="Treshold, only for FAST").place(x=106,y=220)
+    global treshLabel
+    treshLabel = Label(top,text="Treshold, only for FAST")
+    treshLabel.place(x=106,y=220)
+    
+    global sliderTreshHold
     sliderTreshHold=Scale(top,from_=5,to=40,orient='horizontal',length=150,tickinterval=5,variable=thresHold)
     sliderTreshHold.place(x=106,y=250)
 
+    global checkBoxObject
     checkBoxObject= Checkbutton(top, text='Use Object Detector', var=chkValue)
     checkBoxObject.place(x=240,y=320)
 
-    confirmStab = Button(top,text="Confirm your option",command=lambda: StartAlgoStab(pathVar,name,clicked.get(),chkValue.get(),sliderTreshHold.get()),state="normal",font=15)
+    confirmStab = Button(top,text="Confirm your option",command=lambda: StartAlgoStab(pathVar,clicked.get(),chkValue.get(),sliderTreshHold.get()),state="normal",font=15)
     confirmStab.place(x=240,y=360)
     
     
@@ -90,9 +142,12 @@ def StartUp():
     top.config(background="#756d7d")
     top.minsize(400,400)
     top.title("Choose your algorithm")
-    pathLabel = Label(top,text="PATH:   "+pathVar).place(x=0,y=0)
-    buttonCustomAlgo = Button(top,text="Custom",command=lambda: ChooseParamsCustom(pathVar,"Custom"),font=6,height = 8, width = 10).place(x=0,y=40)
-    buttonVidStabAlgo = Button(top,text="VidStab",command=lambda: ChooseAlgoStab(pathVar,"VidStab"),font=6,height = 8, width = 10).place(x=0,y=180)
+    pathLabel = Label(top,text="PATH:   "+pathVar)
+    pathLabel.place(x=0,y=0)
+    buttonCustomAlgo = Button(top,text="Custom",command=lambda: ChooseParamsCustom(pathVar,"Custom"),font=6,height = 8, width = 10)
+    buttonCustomAlgo.place(x=0,y=40)
+    buttonVidStabAlgo = Button(top,text="VidStab",command=lambda: ChooseAlgoStab(pathVar,"VidStab"),font=6,height = 8, width = 10)
+    buttonVidStabAlgo.place(x=0,y=180)
     
 
 
