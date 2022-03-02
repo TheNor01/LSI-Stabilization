@@ -66,11 +66,14 @@ def Stabilization1(sourceVideo,corners,blockSize,outPath="./output/video_out.mp4
 
 def Stabilization2(sourceVideo,option,boolObject,treshHold,outPath="./output/video_out.mp4"):
     
+
+    print(sourceVideo)
+    print(boolObject)
     videoStab = VideoStabilization(option,treshHold)
     if not boolObject:
       videoStab.Process(sourceVideo,outPath)
     else:
-      videoStab.ObjectProcessing(outPath)
+      videoStab.ObjectProcessing(sourceVideo)
       
   
 def Main(sourcePath,name,option="Fast",outPath="./output/video_out.mp4"):

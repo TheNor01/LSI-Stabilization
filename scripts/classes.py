@@ -173,6 +173,7 @@ class VideoStabilization:
     
     def ObjectProcessing(self,sourceVideo):
         print("obj tracker")
+        print(sourceVideo)
         cap = cv2.VideoCapture(sourceVideo)
         object_bounding_box = None
         while True:
