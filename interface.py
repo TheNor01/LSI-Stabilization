@@ -43,6 +43,9 @@ def StartAlgoCustom(pathVar,corners,blockSize):
 
 def StartAlgoStab(pathVar,option,boolObject,thresHold):
     print("startAlgo")
+    if(option == "None"):
+        messagebox.showerror("Error", "Choose algoritm")
+        return
     root.destroy()
     Stabilization2(pathVar,option,boolObject,thresHold)
 
