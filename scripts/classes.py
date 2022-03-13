@@ -124,7 +124,7 @@ class CustomStabilization:
             dy = transforms_smooth[i,1]
             da = transforms_smooth[i,2]
 
-            print("da value = ", da)
+            #print("da value = ", da)
 
             # Reconstruct transformation matrix accordingly to new values
             m = np.zeros((2,3), np.float32)
